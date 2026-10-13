@@ -1,0 +1,606 @@
+<title>Школа BMI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: учебник-терминал — узкая колонка уроков, слева оглавление; графики в стиле графика TradingView пользователя */
+:root{
+  --bg:#F3F4F7; --surface:#FFFFFF; --ink:#151922; --muted:#5D6575; --line:#DCDFE6; --grid:#E8EAF0;
+  --buy:#089981; --sell:#F23645; --poi:#2962FF; --neg:#9C27B0; --laol:#C2185B; --gold:#B7791F;
+  --cbull:#A9ADB8; --cbear:#5B4A8B; --chart:#FBFBFD; --soft:#EEF1FF;
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E7E9EE; --muted:#9AA2B1; --line:#2A303B; --grid:#20252E;
+  --buy:#26A69A; --sell:#FF5A6A; --poi:#5B8CFF; --neg:#C065D6; --laol:#F06292; --gold:#E0A43A;
+  --cbull:#7E8494; --cbear:#8A78C4; --chart:#12151C; --soft:#1A2240; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E7E9EE; --muted:#9AA2B1; --line:#2A303B; --grid:#20252E;
+  --buy:#26A69A; --sell:#FF5A6A; --poi:#5B8CFF; --neg:#C065D6; --laol:#F06292; --gold:#E0A43A;
+  --cbull:#7E8494; --cbear:#8A78C4; --chart:#12151C; --soft:#1A2240; color-scheme:dark}
+:root:not([data-lang="uz"]) .uz{display:none!important}
+:root[data-lang="uz"] .ru{display:none!important}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--f-body);margin:0}
+a{color:var(--poi)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.brand{font:700 15px/1 var(--f-display);letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+.brand i{display:inline-block;width:22px;height:22px;border-radius:5px;background:linear-gradient(var(--sell) 0 50%,var(--buy) 50% 100%)}
+.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.lang button{font:600 13px/1 var(--f-mono);padding:8px 14px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.lang button:focus-visible,.btn:focus-visible,.step:focus-visible,.opt:focus-visible{outline:2px solid var(--poi);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px}
+nav.toc{position:sticky;top:64px;align-self:start;padding-block:28px;font-size:14px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:l}
+nav.toc a{display:flex;gap:10px;padding:6px 8px;border-radius:6px;color:var(--muted);text-decoration:none}
+nav.toc a::before{counter-increment:l;content:counter(l,decimal-leading-zero);font:12px/1.9 var(--f-mono);color:var(--line)}
+nav.toc a:hover{background:var(--surface);color:var(--ink)}
+main{padding-block:28px 80px;min-width:0}
+.hero{padding-block:24px 36px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.hero h1{font:700 clamp(28px,5vw,46px)/1.08 var(--f-display);margin:0 0 16px;text-wrap:balance;letter-spacing:-.01em}
+.hero p{max-width:62ch;color:var(--muted);margin:0 0 20px;font-size:17px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:600 13px/1 var(--f-mono)}
+.flow span{padding:8px 10px;border-radius:6px;color:#fff}
+.flow b{color:var(--muted);font-weight:400}
+section.lesson{padding-block:40px;border-bottom:1px solid var(--line);scroll-margin-top:60px}
+.eyebrow{font:600 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+h2{font:700 clamp(22px,3vw,28px)/1.2 var(--f-display);margin:0 0 16px;text-wrap:balance}
+h3{font:600 17px/1.3 var(--f-body);margin:24px 0 8px}
+.prose{max-width:68ch}
+.prose p{margin:0 0 14px}
+.prose ul{margin:0 0 14px;padding-left:20px}
+.prose li{margin-bottom:6px}
+.tag{display:inline-block;font:600 12.5px/1.2 var(--f-mono);padding:3px 7px;border-radius:4px;color:#fff;white-space:nowrap;vertical-align:1px}
+.t-sell{background:var(--sell)}.t-buy{background:var(--buy)}.t-poi{background:var(--poi)}.t-neg{background:var(--neg)}.t-laol{background:var(--laol)}.t-gray{background:var(--muted)}
+.note{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:14px 16px;margin:16px 0;max-width:68ch;font-size:15px}
+.note strong{font-weight:600}
+.warn{border-color:color-mix(in srgb,var(--sell) 45%,var(--line))}
+.chart{background:var(--chart);border:1px solid var(--line);border-radius:12px;margin:20px 0 8px;overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:560px;height:auto}
+.cap{font-size:13px;color:var(--muted);max-width:68ch}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
+.step{font:500 13px/1.2 var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 11px;border-radius:7px;cursor:pointer}
+.step[aria-pressed="true"]{background:var(--poi);border-color:var(--poi);color:#fff}
+.stepnote{margin:12px 0 0;min-height:3.3em;max-width:68ch;font-size:15px}
+.legend{width:100%;border-collapse:collapse;font-size:15px}
+.legend td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.legend td:first-child{white-space:nowrap;width:1%}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin:16px 0}
+.tool{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:18px;margin:18px 0;display:grid;gap:14px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.fields label{display:grid;gap:5px;font-size:13px;color:var(--muted)}
+.fields input,.fields select{font:500 15px/1.2 var(--f-mono);padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;font-variant-numeric:tabular-nums}
+.out div{background:var(--bg);border-radius:8px;padding:10px 12px}
+.out small{display:block;font-size:12px;color:var(--muted)}
+.out b{font:600 20px/1.3 var(--f-mono)}
+.checks{display:grid;gap:8px}
+.checks label{display:flex;gap:10px;align-items:flex-start;font-size:15px;cursor:pointer}
+.checks input{margin-top:4px;width:17px;height:17px;accent-color:var(--poi);flex:none}
+.grade{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:9px;background:var(--bg)}
+.grade b{font:700 26px/1 var(--f-display);min-width:58px}
+.q{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:16px;margin:14px 0}
+.q p{margin:0 0 10px;font-weight:500}
+.opts{display:grid;gap:6px}
+.opt{text-align:left;font:15px/1.4 var(--f-body);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
+.opt.ok{border-color:var(--buy);background:color-mix(in srgb,var(--buy) 14%,var(--bg))}
+.opt.no{border-color:var(--sell);background:color-mix(in srgb,var(--sell) 12%,var(--bg))}
+.fb{font-size:14px;color:var(--muted);margin-top:8px}
+.score{font:600 15px/1.4 var(--f-mono)}
+.plan{counter-reset:p;list-style:none;padding:0;margin:0;display:grid;gap:10px;max-width:68ch}
+.plan li{display:grid;grid-template-columns:34px 1fr;gap:10px}
+.plan li::before{counter-increment:p;content:counter(p);font:700 14px/30px var(--f-display);text-align:center;border:1px solid var(--line);border-radius:50%;height:32px;width:32px}
+footer{color:var(--muted);font-size:13px;padding-top:24px}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr);gap:0}nav.toc{position:static;padding-block:16px 0}nav.toc ol{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+html{scroll-behavior:smooth}
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand"><i aria-hidden="true"></i><span class="ru">Школа BMI</span><span class="uz">BMI maktabi</span></div>
+  <div class="lang" role="group" aria-label="Язык · Til">
+    <button type="button" id="b-ru" data-l="ru" aria-pressed="true">RU</button>
+    <button type="button" id="b-uz" data-l="uz" aria-pressed="false">UZ</button>
+  </div>
+</div></header>
+
+<div class="wrap">
+<nav class="toc" aria-label="Уроки">
+  <ol>
+    <li><a href="#idea"><span class="ru">Идея: банки и стопы</span><span class="uz">G'oya: banklar va stoplar</span></a></li>
+    <li><a href="#tsl"><span>TSL sell / TSL buy</span></a></li>
+    <li><a href="#hcs"><span>HCS</span></a></li>
+    <li><a href="#neg"><span>Negation 1X–3X</span></a></li>
+    <li><a href="#buzdi"><span>buzdi</span></a></li>
+    <li><a href="#poi"><span>POI zona</span></a></li>
+    <li><a href="#laol"><span>LAOL</span></a></li>
+    <li><a href="#entry"><span class="ru">Вход 1x HCS limit</span><span class="uz">Kirish 1x HCS limit</span></a></li>
+    <li><a href="#grade"><span class="ru">Оценка A+ / A / B</span><span class="uz">Baho A+ / A / B</span></a></li>
+    <li><a href="#lot"><span class="ru">Риск и лот</span><span class="uz">Risk va lot</span></a></li>
+    <li><a href="#time"><span class="ru">Время и новости</span><span class="uz">Vaqt va yangiliklar</span></a></li>
+    <li><a href="#legend"><span class="ru">Все метки индикатора</span><span class="uz">Indikatorning barcha belgilari</span></a></li>
+    <li><a href="#quiz"><span class="ru">Тест</span><span class="uz">Test</span></a></li>
+    <li><a href="#practice"><span class="ru">Как тренироваться</span><span class="uz">Qanday mashq qilish</span></a></li>
+  </ol>
+</nav>
+
+<main>
+<div class="hero">
+  <h1><span class="ru">Торгуй как индикатор BMI</span><span class="uz">BMI indikatori kabi savdo qil</span></h1>
+  <p class="ru">Схема из книг Mr.Casino и FRANK7_fx, разобранная по шагам: где банки собирают стопы толпы, как это видно на графике и где ставить вход, стоп и тейк. Каждый урок — одна метка индикатора.</p>
+  <p class="uz">Mr.Casino va FRANK7_fx kitoblaridagi sxema bosqichma-bosqich: banklar olomon stoplarini qayerda yig'adi, bu grafikda qanday ko'rinadi va kirish, stop hamda teykni qayerga qo'yish kerak. Har bir dars — indikatorning bitta belgisi.</p>
+  <div class="flow" aria-label="Схема">
+    <span style="background:var(--sell)">TSL</span><b>→</b><span style="background:var(--buy)">HCS</span><b>→</b><span style="background:var(--neg)">negation</span><b>→</b><span style="background:var(--neg)">buzdi</span><b>→</b><span style="background:var(--poi)">POI zona</span><b>→</b><span style="background:var(--poi)">1x HCS limit</span>
+  </div>
+</div>
+
+<!-- 1 -->
+<section class="lesson" id="idea">
+  <div class="eyebrow"><span class="ru">Урок 1</span><span class="uz">1-dars</span></div>
+  <h2><span class="ru">Идея: банки охотятся за стопами</span><span class="uz">G'oya: banklar stoplarni ovlaydi</span></h2>
+  <div class="prose">
+    <p class="ru">Крупному игроку нужен большой объём, а в спокойном рынке столько встречных ордеров нет. Самые большие скопления ордеров — это <strong>стоп-лоссы толпы</strong>: над вершинами стоят стопы продавцов, под впадинами — стопы покупателей.</p>
+    <p class="uz">Yirik o'yinchiga katta hajm kerak, tinch bozorda esa shuncha qarama-qarshi order yo'q. Eng katta order to'plamlari — <strong>olomonning stop-losslari</strong>: cho'qqilar ustida sotuvchilar stoplari, chuqurliklar ostida xaridorlar stoplari turadi.</p>
+    <p class="ru">Поэтому перед настоящим движением цена часто делает рывок в обратную сторону, срабатывает чужие стопы (это <strong>манипуляция</strong>) и только потом разворачивается. Индикатор BMI ищет ровно три вещи: где лежат стопы, когда их сняли и есть ли подтверждение разворота.</p>
+    <p class="uz">Shuning uchun haqiqiy harakatdan oldin narx ko'pincha teskari tomonga sakraydi, boshqalarning stoplarini ishga tushiradi (bu <strong>manipulyatsiya</strong>) va shundan keyingina buriladi. BMI indikatori aynan uch narsani qidiradi: stoplar qayerda, ular qachon olindi va burilish tasdig'i bormi.</p>
+  </div>
+  <div class="note"><span class="ru"><strong>Главное правило.</strong> Мы не угадываем вершину. Мы ждём, пока банки снимут стопы, сломают структуру, и входим на возврате цены — вместе с банками, а не против них.</span><span class="uz"><strong>Asosiy qoida.</strong> Biz cho'qqini taxmin qilmaymiz. Banklar stoplarni olib, strukturani buzishini kutamiz va narx qaytganda kiramiz — banklar bilan birga, ularga qarshi emas.</span></div>
+</section>
+
+<!-- 2 -->
+<section class="lesson" id="tsl">
+  <div class="eyebrow"><span class="ru">Урок 2</span><span class="uz">2-dars</span></div>
+  <h2>TSL sell / TSL buy</h2>
+  <div class="prose">
+    <p class="ru"><span class="tag t-sell">TSL sell</span> — уровень над свинг-хаем, где стоят стопы продавцов. <span class="tag t-buy">TSL buy</span> — уровень под свинг-лоу со стопами покупателей. Индикатор тянет линию вправо, пока стопы на месте.</p>
+    <p class="uz"><span class="tag t-sell">TSL sell</span> — swing-high ustidagi daraja, u yerda sotuvchilarning stoplari turadi. <span class="tag t-buy">TSL buy</span> — swing-low ostidagi daraja, xaridorlarning stoplari bilan. Indikator stoplar joyida turganicha chiziqni o'ngga cho'zadi.</p>
+    <p class="ru">Когда цена проходит уровень, линия становится пунктиром и появляется метка <span class="tag t-sell" style="opacity:.75">TSL sell снят</span>. Это <strong>не прогноз и не ошибка</strong> — это факт: стопы сработали, ликвидность забрана. «×2» значит, что одна свеча сняла сразу два уровня.</p>
+    <p class="uz">Narx darajadan o'tganda chiziq punktirga aylanadi va <span class="tag t-sell" style="opacity:.75">TSL sell olindi</span> belgisi chiqadi. Bu <strong>prognoz ham, xato ham emas</strong> — bu fakt: stoplar ishladi, likvidlik olindi. «×2» — bitta sham birdaniga ikki darajani olgan degani.</p>
+  </div>
+  <div class="chart" id="ch-tsl"></div>
+  <p class="cap ru">Цена выносит прошлый хай (снимает TSL sell), а потом падает к TSL buy. Пунктир — уровень уже отработан.</p>
+  <p class="cap uz">Narx oldingi high'ni yangilaydi (TSL sell'ni oladi), keyin TSL buy tomon tushadi. Punktir — daraja allaqachon ishlangan.</p>
+  <div class="note"><span class="ru"><strong>Быстрый TSL.</strong> Хай становится TSL sell, как только следующая свеча закрылась negation вниз — обычно через одну свечу. Раньше узнать вершину нельзя: пока нет закрытия вниз, хай может обновиться.</span><span class="uz"><strong>Tez TSL.</strong> High keyingi sham pastga negation bilan yopilishi bilanoq TSL sell bo'ladi — odatda bitta shamdan keyin. Undan oldin cho'qqini bilib bo'lmaydi: pastga yopilish bo'lmaguncha high yangilanishi mumkin.</span></div>
+</section>
+
+<!-- 3 -->
+<section class="lesson" id="hcs">
+  <div class="eyebrow"><span class="ru">Урок 3</span><span class="uz">3-dars</span></div>
+  <h2><span class="ru">HCS — свеча-ловушка</span><span class="uz">HCS — tuzoq sham</span></h2>
+  <div class="prose">
+    <p class="ru">Перед вершиной толпа покупает на самой сильной бычьей свече. Индикатор подписывает её <span class="tag t-buy">HCS buy</span>. Эти покупатели попадут в ловушку: их стопы под свечой станут топливом для падения. Перед впадиной — зеркально, <span class="tag t-sell">HCS sell</span>.</p>
+    <p class="uz">Cho'qqidan oldin olomon eng kuchli o'suvchi shamda sotib oladi. Indikator uni <span class="tag t-buy">HCS buy</span> deb belgilaydi. Bu xaridorlar tuzoqqa tushadi: sham ostidagi ularning stoplari pasayish uchun yoqilg'i bo'ladi. Chuqurlikdan oldin — teskarisi, <span class="tag t-sell">HCS sell</span>.</p>
+    <p class="ru">Как читать: <strong>HCS buy под вершиной + TSL sell над ней</strong> — с двух сторон от вершины лежат стопы, рынок готов к манипуляции. Каждый HCS привязан к своему TSL и исчезает, когда этот TSL снят.</p>
+    <p class="uz">Qanday o'qish: <strong>cho'qqi ostida HCS buy + ustida TSL sell</strong> — cho'qqining ikki tomonida stoplar yotibdi, bozor manipulyatsiyaga tayyor. Har bir HCS o'z TSL'iga bog'langan va o'sha TSL olinganda yo'qoladi.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="lesson" id="neg">
+  <div class="eyebrow"><span class="ru">Урок 4</span><span class="uz">4-dars</span></div>
+  <h2>Negation 1X · 2X · 3X</h2>
+  <div class="prose">
+    <p class="ru"><strong>Negation</strong> — свеча закрылась за лоу (или хаем) последней свечи противоположного цвета. Медвежья свеча закрылась ниже лоу последней бычьей — продавцы «отменили» покупателей.</p>
+    <p class="uz"><strong>Negation</strong> — sham qarama-qarshi rangdagi oxirgi shamning low'i (yoki high'i) ortida yopildi. Tushuvchi sham oxirgi o'suvchi shamning low'idan pastda yopildi — sotuvchilar xaridorlarni «bekor qildi».</p>
+    <ul class="ru">
+      <li>Каждая свеча-откат ломается один раз. Новая negation требует нового отката.</li>
+      <li>Несколько negation подряд (в пределах ~10 свечей) — это серия: <strong>2X, 3X</strong>.</li>
+      <li>На графике 1X — фиолетовый треугольник, 2X и больше — метка <span class="tag t-neg">neg 2X</span>.</li>
+      <li>Чем больше X, тем сильнее давление. Для входа индикатор требует минимум <strong>2X</strong>.</li>
+    </ul>
+    <ul class="uz">
+      <li>Har bir orqaga qaytish shami bir marta sindiriladi. Yangi negation uchun yangi qaytish kerak.</li>
+      <li>Ketma-ket bir nechta negation (~10 sham ichida) — bu seriya: <strong>2X, 3X</strong>.</li>
+      <li>Grafikda 1X — binafsha uchburchak, 2X va undan ko'p — <span class="tag t-neg">neg 2X</span> belgisi.</li>
+      <li>X qancha ko'p bo'lsa, bosim shuncha kuchli. Kirish uchun indikator kamida <strong>2X</strong> talab qiladi.</li>
+    </ul>
+  </div>
+  <div class="chart" id="ch-neg"></div>
+  <p class="cap ru">Каждая красная свеча закрывается ниже лоу последней серой (бычьей) свечи — серия растёт: 1X, 2X, 3X.</p>
+  <p class="cap uz">Har bir qizil sham oxirgi kulrang (o'suvchi) shamning low'idan pastda yopiladi — seriya o'sadi: 1X, 2X, 3X.</p>
+</section>
+
+<!-- 5 -->
+<section class="lesson" id="buzdi">
+  <div class="eyebrow"><span class="ru">Урок 5</span><span class="uz">5-dars</span></div>
+  <h2><span class="ru">buzdi — слом структуры</span><span class="uz">buzdi — struktura buzildi</span></h2>
+  <div class="prose">
+    <p class="ru"><span class="tag t-neg">buzdi · negation 2X</span> — после свинга серия negation дошла до 2X. Это подтверждение: вершина была манипуляцией, банки развернули цену. Если перед этим сняли TSL, в метке появится «LQD olindi» — манипуляция была, сетап сильнее.</p>
+    <p class="uz"><span class="tag t-neg">buzdi · negation 2X</span> — swingdan keyin negation seriyasi 2X ga yetdi. Bu tasdiq: cho'qqi manipulyatsiya edi, banklar narxni burdi. Agar undan oldin TSL olingan bo'lsa, belgida «LQD olindi» chiqadi — manipulyatsiya bo'lgan, setap kuchliroq.</p>
+    <p class="ru">buzdi появляется только на закрытой свече и больше не исчезает. На живой свече индикатор ничего не рисует.</p>
+    <p class="uz">buzdi faqat yopilgan shamda paydo bo'ladi va boshqa yo'qolmaydi. Jonli shamda indikator hech narsa chizmaydi.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="lesson" id="poi">
+  <div class="eyebrow"><span class="ru">Урок 6</span><span class="uz">6-dars</span></div>
+  <h2>POI zona</h2>
+  <div class="prose">
+    <p class="ru"><span class="tag t-poi">POI zona</span> — место, откуда начался слом: первая свеча, которую сломала negation. Для продажи это бычья свеча у вершины, от её хая до открытия. Банки часто возвращают цену в POI, чтобы добрать позицию, — туда и ставится лимитка.</p>
+    <p class="uz"><span class="tag t-poi">POI zona</span> — buzilish boshlangan joy: negation sindirgan birinchi sham. Sotish uchun bu cho'qqi yonidagi o'suvchi sham, uning high'idan ochilishigacha. Banklar pozitsiyani to'ldirish uchun narxni ko'pincha POI ga qaytaradi — limit order o'sha yerga qo'yiladi.</p>
+    <p class="ru">Если рядом проходит уровень старшего ТФ, зона подписана <strong>LAOL POI zona</strong> — такая зона сильнее. Бледная зона с надписью «RR &lt; 3» — структура есть, но входа нет: цель слишком близко.</p>
+    <p class="uz">Agar yonida katta TF darajasi bo'lsa, zona <strong>LAOL POI zona</strong> deb yoziladi — bunday zona kuchliroq. «RR &lt; 3» yozuvli och zona — struktura bor, lekin kirish yo'q: maqsad juda yaqin.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="lesson" id="laol">
+  <div class="eyebrow"><span class="ru">Урок 7</span><span class="uz">7-dars</span></div>
+  <h2>LAOL</h2>
+  <div class="prose">
+    <p class="ru"><span class="tag t-laol">LAOL</span> — ключевые уровни старших таймфреймов: последние свинги <strong>H1, H4 и D1</strong>, пунктирные линии. Это магниты и стены: туда банки ведут цену за ликвидностью и там часто разворачивают.</p>
+    <p class="uz"><span class="tag t-laol">LAOL</span> — katta taymfreymlarning asosiy darajalari: <strong>H1, H4 va D1</strong> ning oxirgi swinglari, punktir chiziqlar. Ular magnit va devor: banklar narxni likvidlik uchun u yerga olib boradi va ko'pincha o'sha yerda buradi.</p>
+    <p class="ru">Метка <span class="tag t-laol">LAOL test</span> — цена дошла до уровня. Теперь смотрите: появятся ли HCS и negation в обратную сторону. LAOL также служит целью TP3.</p>
+    <p class="uz"><span class="tag t-laol">LAOL test</span> belgisi — narx darajaga yetdi. Endi kuzating: teskari tomonga HCS va negation paydo bo'ladimi. LAOL TP3 maqsadi sifatida ham ishlatiladi.</p>
+  </div>
+  <div class="chart" id="ch-laol"></div>
+  <p class="cap ru">Цена дошла до LAOL H4, сняла стопы над ним и развернулась серией negation.</p>
+  <p class="cap uz">Narx LAOL H4 ga yetdi, uning ustidagi stoplarni oldi va negation seriyasi bilan burildi.</p>
+</section>
+
+<!-- 8 -->
+<section class="lesson" id="entry">
+  <div class="eyebrow"><span class="ru">Урок 8</span><span class="uz">8-dars</span></div>
+  <h2><span class="ru">Вход 1x HCS limit — вся схема по шагам</span><span class="uz">Kirish 1x HCS limit — butun sxema bosqichma-bosqich</span></h2>
+  <div class="prose">
+    <p class="ru">Нажимайте шаги под графиком: схема на продажу собирается так же, как её рисует индикатор.</p>
+    <p class="uz">Grafik ostidagi bosqichlarni bosing: sotish sxemasi indikator chizganidek yig'iladi.</p>
+  </div>
+  <div class="chart" id="ch-entry"></div>
+  <div class="steps" id="st-entry" role="group" aria-label="Шаги"></div>
+  <p class="stepnote" id="sn-entry" aria-live="polite"></p>
+  <h3><span class="ru">Правила входа</span><span class="uz">Kirish qoidalari</span></h3>
+  <ul class="prose ru">
+    <li><strong>Вход:</strong> лимитный ордер на краю POI (для SELL — нижняя граница зоны, для BUY — верхняя).</li>
+    <li><strong>Стоп:</strong> за экстремум манипуляции (свинг-хай для SELL) плюс небольшой запас, но не меньше 0,5 ATR.</li>
+    <li><strong>Тейки:</strong> TP1 = 1R, TP2 = 2R, TP3 = ближайший TSL или LAOL с другой стороны. Позиция делится на три части.</li>
+    <li><strong>После TP1</strong> стоп переносится в безубыток (BE).</li>
+    <li><strong>Фильтр:</strong> вход только если до TP3 RR не меньше 1:3.</li>
+    <li><strong>Срок:</strong> лимитка живёт 30 свечей. Цена не дошла — «○ не зашёл».</li>
+  </ul>
+  <ul class="prose uz">
+    <li><strong>Kirish:</strong> POI chetida limit order (SELL uchun — zonaning pastki chegarasi, BUY uchun — yuqorisi).</li>
+    <li><strong>Stop:</strong> manipulyatsiya ekstremumi ortida (SELL uchun swing-high) va kichik zaxira, lekin 0,5 ATR dan kam emas.</li>
+    <li><strong>Teyklar:</strong> TP1 = 1R, TP2 = 2R, TP3 = qarama-qarshi tomondagi eng yaqin TSL yoki LAOL. Pozitsiya uch qismga bo'linadi.</li>
+    <li><strong>TP1 dan keyin</strong> stop zararsizlikka (BE) ko'chiriladi.</li>
+    <li><strong>Filtr:</strong> TP3 gacha RR kamida 1:3 bo'lsagina kirish.</li>
+    <li><strong>Muddat:</strong> limit 30 sham yashaydi. Narx yetmasa — «○ kirmadi».</li>
+  </ul>
+  <div class="note"><span class="ru"><strong>Исход на метке входа.</strong> <span class="tag t-buy">✓ TP3 +2.1R</span> — все три цели. <span class="tag t-buy">✓ TP1 · BE +0.33R</span> — взяли треть, остаток закрыт в безубыток. <span class="tag t-sell">✗ SL −1R</span> — стоп до TP1. <span class="tag t-gray">○ не зашёл</span> — цена не вернулась в POI.</span><span class="uz"><strong>Kirish belgisidagi natija.</strong> <span class="tag t-buy">✓ TP3 +2.1R</span> — uchala maqsad. <span class="tag t-buy">✓ TP1 · BE +0.33R</span> — uchdan biri olindi, qolgani zararsizlikda yopildi. <span class="tag t-sell">✗ SL −1R</span> — TP1 gacha stop. <span class="tag t-gray">○ kirmadi</span> — narx POI ga qaytmadi.</span></div>
+</section>
+
+<!-- 9 -->
+<section class="lesson" id="grade">
+  <div class="eyebrow"><span class="ru">Урок 9</span><span class="uz">9-dars</span></div>
+  <h2><span class="ru">Оценка A+ / A / B и чек-лист</span><span class="uz">Baho A+ / A / B va tekshiruv ro'yxati</span></h2>
+  <div class="prose">
+    <p class="ru">Индикатор пишет оценку на метке входа. <strong>A+</strong> — перед сломом сняли ликвидность и negation 3X или больше. <strong>A</strong> — есть одно из двух или рядом LAOL. <strong>B</strong> — только слом. Отметьте, что вы видите на своём графике:</p>
+    <p class="uz">Indikator bahoni kirish belgisiga yozadi. <strong>A+</strong> — buzilishdan oldin likvidlik olingan va negation 3X yoki ko'p. <strong>A</strong> — ikkisidan biri bor yoki yonida LAOL. <strong>B</strong> — faqat buzilish. Grafikingizda nimani ko'rayotganingizni belgilang:</p>
+  </div>
+  <div class="tool">
+    <div class="checks" id="checks">
+      <label><input type="checkbox" id="c-neg2" checked><span><span class="ru">Есть buzdi: negation 2X или больше</span><span class="uz">buzdi bor: negation 2X yoki ko'p</span></span></label>
+      <label><input type="checkbox" id="c-rr" checked><span><span class="ru">До цели TP3 RR не меньше 1:3</span><span class="uz">TP3 maqsadigacha RR kamida 1:3</span></span></label>
+      <label><input type="checkbox" id="c-news"><span><span class="ru">Рядом важная новость (−15 / +30 мин)</span><span class="uz">Yaqinda muhim yangilik (−15 / +30 daq)</span></span></label>
+      <label><input type="checkbox" id="c-lqd" checked><span><span class="ru">Перед сломом сняли TSL / Asia high-low (LQD olindi)</span><span class="uz">Buzilishdan oldin TSL / Asia high-low olingan (LQD olindi)</span></span></label>
+      <label><input type="checkbox" id="c-neg3"><span><span class="ru">Серия negation 3X или больше</span><span class="uz">Negation seriyasi 3X yoki ko'p</span></span></label>
+      <label><input type="checkbox" id="c-laol"><span><span class="ru">POI рядом с LAOL</span><span class="uz">POI LAOL yonida</span></span></label>
+    </div>
+    <div class="grade" aria-live="polite"><b id="g-val">A</b><span id="g-txt"></span></div>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="lesson" id="lot">
+  <div class="eyebrow"><span class="ru">Урок 10</span><span class="uz">10-dars</span></div>
+  <h2><span class="ru">Риск и лот</span><span class="uz">Risk va lot</span></h2>
+  <div class="prose">
+    <p class="ru">Риск на сделку — не больше <strong>1%</strong> депозита. Лот = риск в долларах ÷ (расстояние до стопа × размер контракта). У золота 1 лот = 100 унций: движение на $1 = $100 на лот. У валют 1 лот = 100 000 единиц.</p>
+    <p class="uz">Bir savdoga risk — depozitning <strong>1%</strong> idan oshmasin. Lot = dollardagi risk ÷ (stopgacha masofa × kontrakt hajmi). Oltinda 1 lot = 100 untsiya: $1 harakat = lotga $100. Valyutalarda 1 lot = 100 000 birlik.</p>
+  </div>
+  <div class="tool">
+    <div class="fields">
+      <label><span class="ru">Депозит, $</span><span class="uz">Depozit, $</span><input id="l-dep" type="number" value="1000" min="1" step="10" inputmode="decimal"></label>
+      <label><span class="ru">Риск, %</span><span class="uz">Risk, %</span><input id="l-risk" type="number" value="1" min="0.1" step="0.1" inputmode="decimal"></label>
+      <label><span class="ru">Инструмент</span><span class="uz">Instrument</span><select id="l-ins"><option value="100">XAUUSD (100)</option><option value="100000">EURUSD, GBPUSD (100 000)</option></select></label>
+      <label><span class="ru">Вход</span><span class="uz">Kirish</span><input id="l-en" type="number" value="4181.76" step="0.01" inputmode="decimal"></label>
+      <label>SL<input id="l-sl" type="number" value="4183.10" step="0.01" inputmode="decimal"></label>
+      <label><span class="ru">Цель TP3</span><span class="uz">TP3 maqsadi</span><input id="l-tp" type="number" value="4176.13" step="0.01" inputmode="decimal"></label>
+    </div>
+    <div class="out" aria-live="polite">
+      <div><small><span class="ru">Лот</span><span class="uz">Lot</span></small><b id="o-lot">—</b></div>
+      <div><small><span class="ru">Риск, $</span><span class="uz">Risk, $</span></small><b id="o-usd">—</b></div>
+      <div><small>TP1 / TP2</small><b id="o-tp" style="font-size:16px">—</b></div>
+      <div><small><span class="ru">RR до TP3</span><span class="uz">TP3 gacha RR</span></small><b id="o-rr">—</b></div>
+    </div>
+    <p class="fb" id="o-msg"></p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="lesson" id="time">
+  <div class="eyebrow"><span class="ru">Урок 11</span><span class="uz">11-dars</span></div>
+  <h2><span class="ru">Время: новости, kill-zone, ловушка Азии</span><span class="uz">Vaqt: yangiliklar, kill-zone, Osiyo tuzog'i</span></h2>
+  <div class="prose">
+    <ul class="ru">
+      <li><strong>Новости.</strong> Не входим за 15 минут до и 30 минут после важной новости. NFP — первая пятница месяца, 08:30 по Нью-Йорку. Панель индикатора показывает ближайшую новость.</li>
+      <li><strong>Kill-zone.</strong> Лондон 07:00–10:00 (время Лондона) и Нью-Йорк 08:30–11:00 (время NY). В эти часы банки чаще всего делают манипуляции.</li>
+      <li><strong>Ловушка Азии.</strong> В Лондон или Нью-Йорк цена снимает хай или лоу азиатской сессии — метка «Asia high снят» — и потом часто идёт в обратную сторону. Это тоже снятие ликвидности, оно повышает оценку.</li>
+    </ul>
+    <ul class="uz">
+      <li><strong>Yangiliklar.</strong> Muhim yangilikdan 15 daqiqa oldin va 30 daqiqa keyin kirmaymiz. NFP — oyning birinchi jumasi, Nyu-York vaqti bilan 08:30. Indikator paneli eng yaqin yangilikni ko'rsatadi.</li>
+      <li><strong>Kill-zone.</strong> London 07:00–10:00 (London vaqti) va Nyu-York 08:30–11:00 (NY vaqti). Bu soatlarda banklar ko'pincha manipulyatsiya qiladi.</li>
+      <li><strong>Osiyo tuzog'i.</strong> London yoki Nyu-Yorkda narx Osiyo sessiyasining high yoki low'ini oladi — «Asia high olindi» belgisi — va keyin ko'pincha teskari tomonga ketadi. Bu ham likvidlik olinishi, bahoni oshiradi.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="lesson" id="legend">
+  <div class="eyebrow"><span class="ru">Шпаргалка</span><span class="uz">Shpargalka</span></div>
+  <h2><span class="ru">Все метки индикатора</span><span class="uz">Indikatorning barcha belgilari</span></h2>
+  <div class="tablewrap"><table class="legend">
+    <tr><td><span class="tag t-sell">TSL sell</span></td><td><span class="ru">Над хаем стоят стопы продавцов. Цель для BUY.</span><span class="uz">High ustida sotuvchilar stoplari. BUY uchun maqsad.</span></td></tr>
+    <tr><td><span class="tag t-buy">TSL buy</span></td><td><span class="ru">Под лоу стоят стопы покупателей. Цель для SELL.</span><span class="uz">Low ostida xaridorlar stoplari. SELL uchun maqsad.</span></td></tr>
+    <tr><td><span class="tag t-sell" style="opacity:.7">TSL sell снят ×2</span></td><td><span class="ru">Стопы над хаем сработали (×2 — сразу два уровня). Манипуляция, ждём слом вниз.</span><span class="uz">High ustidagi stoplar ishladi (×2 — birdan ikki daraja). Manipulyatsiya, pastga buzilishni kutamiz.</span></td></tr>
+    <tr><td><span class="tag t-buy">HCS buy</span> <span class="tag t-sell">HCS sell</span></td><td><span class="ru">Свеча-ловушка толпы перед свингом.</span><span class="uz">Swingdan oldingi olomon tuzoq shami.</span></td></tr>
+    <tr><td><span style="color:var(--neg)">▼ ▲</span> <span class="tag t-neg">neg 2X</span></td><td><span class="ru">Negation: 1X — треугольник, серия 2X+ — метка.</span><span class="uz">Negation: 1X — uchburchak, 2X+ seriya — belgi.</span></td></tr>
+    <tr><td><span class="tag t-neg">buzdi · negation 2X</span></td><td><span class="ru">Слом структуры после свинга. С «LQD olindi» — перед этим сняли стопы.</span><span class="uz">Swingdan keyin struktura buzildi. «LQD olindi» bilan — undan oldin stoplar olingan.</span></td></tr>
+    <tr><td><span class="tag t-poi">POI zona</span></td><td><span class="ru">Зона входа. Бледная с «RR &lt; 3» или «новости» — входа нет.</span><span class="uz">Kirish zonasi. «RR &lt; 3» yoki «yangiliklar» yozuvli och zona — kirish yo'q.</span></td></tr>
+    <tr><td><span class="tag t-poi">1x HCS SELL limit · A</span></td><td><span class="ru">Вход: цена, оценка, лот. Справа линии SL, TP1, TP2, TP3.</span><span class="uz">Kirish: narx, baho, lot. O'ngda SL, TP1, TP2, TP3 chiziqlari.</span></td></tr>
+    <tr><td><span class="tag t-laol">LAOL H1 / H4 / D1</span></td><td><span class="ru">Уровни старших ТФ. «LAOL test» — цена дошла до уровня.</span><span class="uz">Katta TF darajalari. «LAOL test» — narx darajaga yetdi.</span></td></tr>
+    <tr><td><span class="tag t-buy">✓ TP3 +2.1R</span> <span class="tag t-sell">✗ SL −1R</span></td><td><span class="ru">Итог сделки на метке входа.</span><span class="uz">Kirish belgisidagi savdo natijasi.</span></td></tr>
+    <tr><td><span class="tag t-gray">○ не зашёл</span></td><td><span class="ru">Цена не вернулась к лимитке за 30 свечей, или пришёл новый сигнал.</span><span class="uz">Narx 30 sham ichida limitga qaytmadi yoki yangi signal keldi.</span></td></tr>
+  </table></div>
+</section>
+
+<!-- 13 -->
+<section class="lesson" id="quiz">
+  <div class="eyebrow"><span class="ru">Проверка</span><span class="uz">Tekshiruv</span></div>
+  <h2><span class="ru">Тест: 6 вопросов</span><span class="uz">Test: 6 savol</span></h2>
+  <div id="quizbox"></div>
+  <p class="score" id="q-score" aria-live="polite"></p>
+</section>
+
+<!-- 14 -->
+<section class="lesson" id="practice">
+  <div class="eyebrow"><span class="ru">Урок 12</span><span class="uz">12-dars</span></div>
+  <h2><span class="ru">Как тренироваться</span><span class="uz">Qanday mashq qilish</span></h2>
+  <ol class="plan ru">
+    <li><span><strong>Две недели — только смотреть.</strong> Откройте M1–M15, находите TSL, HCS, negation и buzdi сами, потом сверяйтесь с индикатором.</span></li>
+    <li><span><strong>Журнал.</strong> Скриншот каждой схемы: оценка, RR, чем закончилась. Через 30 схем будет видно, какие работают у вас.</span></li>
+    <li><span><strong>Демо-счёт.</strong> Торгуйте только схемы A и A+, риск 1%, по правилам урока 8 без исключений.</span></li>
+    <li><span><strong>Реальный счёт</strong> — только если на демо за месяц итог в плюсе. Начинайте с минимального лота.</span></li>
+  </ol>
+  <ol class="plan uz">
+    <li><span><strong>Ikki hafta — faqat kuzatish.</strong> M1–M15 ni oching, TSL, HCS, negation va buzdi ni o'zingiz toping, keyin indikator bilan solishtiring.</span></li>
+    <li><span><strong>Jurnal.</strong> Har bir sxemaning skrinshoti: baho, RR, qanday tugadi. 30 ta sxemadan keyin qaysilari sizda ishlashi ko'rinadi.</span></li>
+    <li><span><strong>Demo hisob.</strong> Faqat A va A+ sxemalarni, 1% risk bilan, 8-dars qoidalari bo'yicha istisnosiz savdo qiling.</span></li>
+    <li><span><strong>Real hisob</strong> — faqat demo'da bir oyda natija plyusda bo'lsa. Minimal lotdan boshlang.</span></li>
+  </ol>
+  <div class="note warn"><span class="ru"><strong>Честно о рисках.</strong> Индикатор — помощник, а не гарантия. В наших тестах на истории XAUUSD (2025–2026) большинство сетапов без строгого отбора дали минус. Поэтому только A/A+, RR от 1:3, сначала демо. Это не финансовый совет.</span><span class="uz"><strong>Risklar haqida ochig'i.</strong> Indikator — yordamchi, kafolat emas. XAUUSD tarixidagi (2025–2026) sinovlarimizda qat'iy saralashsiz ko'pchilik setaplar minus berdi. Shuning uchun faqat A/A+, RR 1:3 dan, avval demo. Bu moliyaviy maslahat emas.</span></div>
+  <footer><span class="ru">Школа BMI · по книгам Mr.Casino и FRANK7_fx · индикатор BMI v2 для TradingView</span><span class="uz">BMI maktabi · Mr.Casino va FRANK7_fx kitoblari asosida · TradingView uchun BMI v2 indikatori</span></footer>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+var root = document.documentElement;
+var lang = "ru";
+try { var s = localStorage.getItem("bmi-lang"); if (s === "uz" || s === "ru") lang = s; } catch(e) {}
+if (location.hash === "#uz") lang = "uz";
+var T = function(ru, uz){ return lang === "uz" ? uz : ru; };
+
+/* ── мини-графики: свечи + разметка индикатора ── */
+var NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(v){ return typeof v === "string" ? v : T(v.ru, v.uz); }
+
+function draw(host, cfg, upto){
+  var W = 760, H = cfg.h || 340, padL = 14, padR = 150, padT = 26, padB = 22;
+  var c = cfg.candles, n = c.length;
+  var lo = Infinity, hi = -Infinity;
+  c.forEach(function(k){ lo = Math.min(lo, k[2]); hi = Math.max(hi, k[1]); });
+  (cfg.ann || []).forEach(function(a){ if (a.y != null){ lo = Math.min(lo, a.y); hi = Math.max(hi, a.y); } if (a.y1 != null){ lo = Math.min(lo, a.y1, a.y2); hi = Math.max(hi, a.y1, a.y2); } });
+  var pr = (hi - lo) * 0.08; lo -= pr; hi += pr;
+  var step = (W - padL - padR) / n;
+  var X = function(i){ return padL + step * (i + 0.5); };
+  var Y = function(p){ return padT + (hi - p) / (hi - lo) * (H - padT - padB); };
+  host.innerHTML = "";
+  var svg = el("svg", { viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": txt(cfg.title) }, host);
+  for (var g = 1; g < 6; g++) el("line", { x1: 0, x2: W, y1: padT + g * (H - padT - padB) / 6, y2: padT + g * (H - padT - padB) / 6, style: "stroke:var(--grid);stroke-width:1" }, svg);
+  var show = function(a){ return upto == null || (a.s || 0) <= upto; };
+  var anns = (cfg.ann || []).filter(show);
+  anns.filter(function(a){ return a.t === "box"; }).forEach(function(a){
+    var x1 = X(a.x1) - step * 0.4, x2 = X(a.x2) + step * 0.4;
+    el("rect", { x: x1, y: Y(a.y1), width: x2 - x1, height: Y(a.y2) - Y(a.y1), style: "fill:var(" + a.c + ");fill-opacity:.16;stroke:var(" + a.c + ");stroke-opacity:.55" }, svg);
+    var t = el("text", { x: x2 - 6, y: Y(a.y1) + 14, "text-anchor": "end", style: "fill:var(" + a.c + ");font:600 11px var(--f-mono)" }, svg); t.textContent = txt(a.l);
+  });
+  c.forEach(function(k, i){
+    var up = k[3] >= k[0], col = up ? "var(--cbull)" : "var(--cbear)";
+    el("line", { x1: X(i), x2: X(i), y1: Y(k[1]), y2: Y(k[2]), style: "stroke:" + col + ";stroke-width:1.4" }, svg);
+    var top = Y(Math.max(k[0], k[3])), bot = Y(Math.min(k[0], k[3]));
+    el("rect", { x: X(i) - step * 0.3, y: top, width: step * 0.6, height: Math.max(bot - top, 1.5), style: "fill:" + col }, svg);
+  });
+  var rightTags = [];
+  anns.filter(function(a){ return a.t === "line"; }).forEach(function(a){
+    var x1 = X(a.x1), x2 = a.x2 >= n ? W - padR + 4 : X(a.x2);
+    el("line", { x1: x1, x2: x2, y1: Y(a.y), y2: Y(a.y), style: "stroke:var(" + a.c + ");stroke-width:" + (a.w || 1.5) + (a.d ? ";stroke-dasharray:" + a.d : "") }, svg);
+    if (a.l) rightTags.push({ y: Y(a.y), l: txt(a.l), c: a.c, x: x2 + 6 });
+  });
+  rightTags.sort(function(a, b){ return a.y - b.y; });
+  for (var r = 1; r < rightTags.length; r++) if (rightTags[r].y - rightTags[r - 1].y < 17) rightTags[r].y = rightTags[r - 1].y + 17;
+  rightTags.forEach(function(t){ pill(svg, t.x, t.y, t.l, t.c, "left"); });
+  anns.filter(function(a){ return a.t === "tag" || a.t === "tri"; }).forEach(function(a){
+    var k = c[a.x], above = a.p === "a";
+    var y = above ? Y(k[1]) - 8 : Y(k[2]) + 8;
+    if (a.t === "tri"){
+      var s = 6, pts = above ? [X(a.x) - s, y - s, X(a.x) + s, y - s, X(a.x), y] : [X(a.x) - s, y + s, X(a.x) + s, y + s, X(a.x), y];
+      el("polygon", { points: pts.join(" "), style: "fill:var(" + a.c + ")" }, svg);
+      if (a.l){ var tt = el("text", { x: X(a.x), y: above ? y - s - 4 : y + s + 12, "text-anchor": "middle", style: "fill:var(" + a.c + ");font:600 11px var(--f-mono)" }, svg); tt.textContent = txt(a.l); }
+    } else pill(svg, X(a.x), above ? y - 12 : y + 12, txt(a.l), a.c, "mid");
+  });
+}
+function pill(svg, x, y, label, c, mode){
+  var w = label.length * 6.7 + 12, h = 17;
+  var x0 = mode === "left" ? x : x - w / 2;
+  x0 = Math.min(Math.max(x0, 2), 760 - w - 2);
+  el("rect", { x: x0, y: y - h / 2, width: w, height: h, rx: 3, style: "fill:var(" + c + ")" }, svg);
+  var t = el("text", { x: x0 + w / 2, y: y + 4, "text-anchor": "middle", style: "fill:#fff;font:600 11px var(--f-mono)" }, svg);
+  t.textContent = label;
+}
+
+/* схема SELL — те же правила, что в индикаторе */
+var SCH = [[100,102,99,101.5],[101.5,104,101,103.5],[103.5,104.2,102,102.6],[102.6,106.5,102.3,106],[106,108,105,107.4],[107.4,107.8,104.5,105.2],[105.2,112,104.8,111.5],[111.5,116.5,111,116],[116,118.5,115.5,118],[118,119,116.8,117],[117,117.3,114.5,115],[115,115.8,114.6,115.6],[115.6,115.7,111,111.5],[111.5,113,110.8,112.8],[112.8,116.3,112.5,115.8],[115.8,116.1,112,112.4],[112.4,112.8,108,108.5],[108.5,109,105,105.6],[105.6,106,103.8,104.2],[104.2,105.5,103.5,105]];
+var CH = {
+  entry: { title: { ru: "Схема продажи по шагам", uz: "Sotish sxemasi bosqichma-bosqich" }, candles: SCH, h: 380, ann: [
+    { t: "line", s: 1, x1: 9, x2: 99, y: 119, c: "--sell", l: "TSL sell" },
+    { t: "line", s: 1, x1: 5, x2: 99, y: 104.5, c: "--buy", l: "TSL buy" },
+    { t: "tag", s: 2, x: 6, p: "b", c: "--buy", l: "HCS buy" },
+    { t: "tri", s: 3, x: 10, p: "a", c: "--neg", l: "1X" },
+    { t: "tag", s: 4, x: 12, p: "a", c: "--neg", l: "buzdi · negation 2X" },
+    { t: "box", s: 5, x1: 8, x2: 19, y1: 118.5, y2: 116, c: "--poi", l: "POI zona" },
+    { t: "line", s: 6, x1: 12, x2: 99, y: 116, c: "--poi", w: 2, l: { ru: "1x HCS SELL limit · A", uz: "1x HCS SELL limit · A" } },
+    { t: "line", s: 6, x1: 12, x2: 99, y: 119.5, c: "--sell", d: "5 4", l: "SL" },
+    { t: "line", s: 6, x1: 12, x2: 99, y: 112.5, c: "--buy", d: "2 3", l: "TP1 1R" },
+    { t: "line", s: 6, x1: 12, x2: 99, y: 109, c: "--buy", d: "2 3", l: "TP2 2R" },
+    { t: "tag", s: 7, x: 14, p: "a", c: "--poi", l: { ru: "вход", uz: "kirish" } },
+    { t: "tag", s: 7, x: 18, p: "b", c: "--buy", l: "✓ TP3 +2.1R" }
+  ]},
+  tsl: { title: "TSL", candles: [[100,103,99.5,102.5],[102.5,106,102,105.5],[105.5,108,104.5,107.6],[107.6,110,106.8,107.2],[107.2,107.6,103,103.5],[103.5,104,101,101.8],[101.8,105,101.5,104.6],[104.6,108.4,104.2,108],[108,111.2,107.6,108.2],[108.2,108.5,104,104.4],[104.4,104.8,101.6,102],[102,102.4,101.3,101.6]], ann: [
+    { t: "line", x1: 3, x2: 8, y: 110, c: "--sell", d: "4 3" },
+    { t: "tag", x: 3, p: "a", c: "--sell", l: "TSL sell" },
+    { t: "tag", x: 8, p: "a", c: "--sell", l: { ru: "TSL sell снят", uz: "TSL sell olindi" } },
+    { t: "line", x1: 5, x2: 99, y: 101, c: "--buy", l: "TSL buy" },
+    { t: "tag", x: 5, p: "b", c: "--buy", l: "TSL buy" }
+  ]},
+  neg: { title: "Negation", candles: [[110,111,109.2,110.8],[110.8,112,110.4,111.6],[111.6,111.9,109.8,110.2],[110.2,110.9,109.6,110.6],[110.6,110.8,108.4,108.8],[108.8,109.6,108.5,109.3],[109.3,109.5,107,107.3],[107.3,107.4,105.6,106],[106,106.9,105.7,106.6],[106.6,106.7,104.2,104.5]], ann: [
+    { t: "tri", x: 2, p: "a", c: "--neg", l: "1X" },
+    { t: "tag", x: 4, p: "a", c: "--neg", l: "neg 2X" },
+    { t: "tag", x: 6, p: "a", c: "--neg", l: "neg 3X" },
+    { t: "tag", x: 9, p: "a", c: "--neg", l: "neg 4X" }
+  ]},
+  laol: { title: "LAOL", candles: [[100,102,99.6,101.6],[101.6,104,101.2,103.6],[103.6,106,103.2,105.7],[105.7,108.4,105.4,108],[108,110.6,107.7,109.1],[109.1,109.4,106.6,107],[107,107.3,104.8,105.2],[105.2,106.6,104.9,106.2],[106.2,106.4,103.4,103.7],[103.7,104,101.5,102]], ann: [
+    { t: "line", x1: 0, x2: 99, y: 110, c: "--laol", d: "6 4", l: "LAOL H4" },
+    { t: "tag", x: 4, p: "a", c: "--laol", l: "LAOL test" },
+    { t: "tri", x: 5, p: "a", c: "--neg", l: "1X" },
+    { t: "tag", x: 8, p: "a", c: "--neg", l: "neg 2X" }
+  ]}
+};
+var STEPS = [
+  { ru: ["Полная схема", "Всё вместе: от манипуляции до тейка."], uz: ["To'liq sxema", "Hammasi birga: manipulyatsiyadan teykkacha."] },
+  { ru: ["1. TSL", "Отмечаем стопы: TSL sell над вершиной, TSL buy под прошлой впадиной — это будущая цель."], uz: ["1. TSL", "Stoplarni belgilaymiz: cho'qqi ustida TSL sell, oldingi chuqurlik ostida TSL buy — bu kelajakdagi maqsad."] },
+  { ru: ["2. HCS", "Самая сильная бычья свеча перед вершиной — HCS buy. Здесь толпа купила и попала в ловушку."], uz: ["2. HCS", "Cho'qqidan oldingi eng kuchli o'suvchi sham — HCS buy. Bu yerda olomon sotib oldi va tuzoqqa tushdi."] },
+  { ru: ["3. negation 1X", "Красная свеча закрылась ниже лоу последней бычьей — первая negation. Вершина подтверждена."], uz: ["3. negation 1X", "Qizil sham oxirgi o'suvchi shamning low'idan pastda yopildi — birinchi negation. Cho'qqi tasdiqlandi."] },
+  { ru: ["4. buzdi 2X", "После отката вторая negation — серия 2X. Это buzdi: структура сломана вниз."], uz: ["4. buzdi 2X", "Qaytishdan keyin ikkinchi negation — 2X seriya. Bu buzdi: struktura pastga buzildi."] },
+  { ru: ["5. POI", "POI zona — первая сломанная бычья свеча у вершины, от её хая до открытия."], uz: ["5. POI", "POI zona — cho'qqi yonidagi birinchi sindirilgan o'suvchi sham, high'idan ochilishigacha."] },
+  { ru: ["6. Вход", "Лимит SELL на нижнем краю POI (116). Стоп за вершиной (119.5), риск 3.5. TP1 112.5, TP2 109, TP3 — TSL buy 104.5: RR 3.3, вход разрешён."], uz: ["6. Kirish", "POI pastki chetida SELL limit (116). Stop cho'qqi ortida (119.5), risk 3.5. TP1 112.5, TP2 109, TP3 — TSL buy 104.5: RR 3.3, kirish ruxsat."] },
+  { ru: ["7. Итог", "Цена вернулась в POI — лимит исполнен. Дальше TP1, TP2 и TP3: итог +2.1R (три части: 1/3 + 2/3 + 3.3/3)."], uz: ["7. Natija", "Narx POI ga qaytdi — limit bajarildi. Keyin TP1, TP2 va TP3: natija +2.1R (uch qism: 1/3 + 2/3 + 3.3/3)."] }
+];
+var cur = 0;
+function renderSteps(){
+  var box = document.getElementById("st-entry"); box.innerHTML = "";
+  STEPS.forEach(function(s, i){
+    var b = document.createElement("button"); b.type = "button"; b.className = "step"; b.textContent = T(s.ru[0], s.uz[0]);
+    b.setAttribute("aria-pressed", i === cur ? "true" : "false");
+    b.addEventListener("click", function(){ cur = i; renderSteps(); });
+    box.appendChild(b);
+  });
+  draw(document.getElementById("ch-entry"), CH.entry, cur === 0 ? null : cur);
+  document.getElementById("sn-entry").textContent = T(STEPS[cur].ru[1], STEPS[cur].uz[1]);
+}
+
+/* чек-лист → оценка */
+function grade(){
+  var on = function(id){ return document.getElementById(id).checked; };
+  var g, t;
+  if (!on("c-neg2")) { g = "—"; t = T("Входа нет: нет слома с negation 2X.", "Kirish yo'q: negation 2X bilan buzilish yo'q."); }
+  else if (!on("c-rr")) { g = "—"; t = T("Входа нет: RR до цели меньше 1:3.", "Kirish yo'q: maqsadgacha RR 1:3 dan kam."); }
+  else if (on("c-news")) { g = "—"; t = T("Входа нет: рядом новость. Ждём.", "Kirish yo'q: yaqinda yangilik. Kutamiz."); }
+  else if (on("c-lqd") && on("c-neg3")) { g = "A+"; t = T("Лучший сетап: манипуляция + сильный слом.", "Eng yaxshi setap: manipulyatsiya + kuchli buzilish."); }
+  else if (on("c-lqd") || on("c-neg3") || on("c-laol")) { g = "A"; t = T("Хороший сетап — можно торговать.", "Yaxshi setap — savdo qilish mumkin."); }
+  else { g = "B"; t = T("Только слом. На демо — да, на реальном лучше пропустить.", "Faqat buzilish. Demo'da — ha, real hisobda o'tkazib yuborgan yaxshi."); }
+  var gv = document.getElementById("g-val"); gv.textContent = g;
+  gv.style.color = g === "—" ? "var(--sell)" : g === "B" ? "var(--gold)" : "var(--buy)";
+  document.getElementById("g-txt").textContent = t;
+}
+document.getElementById("checks").addEventListener("change", grade);
+
+/* калькулятор лота */
+function lot(){
+  var v = function(id){ return parseFloat(document.getElementById(id).value); };
+  var dep = v("l-dep"), rk = v("l-risk"), ctr = v("l-ins"), en = v("l-en"), sl = v("l-sl"), tp = v("l-tp");
+  var msg = document.getElementById("o-msg");
+  var set = function(id, s){ document.getElementById(id).textContent = s; };
+  if (!(dep > 0) || !(rk > 0) || !isFinite(en) || !isFinite(sl) || en === sl) {
+    ["o-lot", "o-usd", "o-tp", "o-rr"].forEach(function(id){ set(id, "—"); });
+    msg.textContent = T("Введите депозит, риск, вход и стоп (стоп не равен входу).", "Depozit, risk, kirish va stopni kiriting (stop kirishga teng emas).");
+    return;
+  }
+  var usd = dep * rk / 100, risk = Math.abs(en - sl), dir = sl > en ? -1 : 1;
+  var l = Math.floor(usd / (risk * ctr) * 100) / 100;
+  var dg = ctr >= 100000 ? 5 : 2;
+  set("o-lot", l.toFixed(2)); set("o-usd", "$" + usd.toFixed(2));
+  set("o-tp", (en + dir * risk).toFixed(dg) + " / " + (en + dir * 2 * risk).toFixed(dg));
+  var rr = isFinite(tp) ? dir * (tp - en) / risk : NaN;
+  set("o-rr", isFinite(rr) ? "1:" + rr.toFixed(1) : "—");
+  var parts = [];
+  if (l < 0.01) parts.push(T("Лот меньше 0.01: стоп слишком широкий для такого риска — уменьшите стоп или пропустите сделку.", "Lot 0.01 dan kam: bunday risk uchun stop juda keng — stopni kamaytiring yoki savdoni o'tkazib yuboring."));
+  if (isFinite(rr) && rr < 3) parts.push(T("RR меньше 1:3 — по правилам входа нет.", "RR 1:3 dan kam — qoidaga ko'ra kirish yo'q."));
+  if (isFinite(rr) && rr <= 0) parts.push(T("Цель с той же стороны, что и стоп — проверьте цены.", "Maqsad stop bilan bir tomonda — narxlarni tekshiring."));
+  msg.textContent = parts.length ? parts.join(" ") : T(dir === -1 ? "SELL: стоп выше входа. Всё по правилам." : "BUY: стоп ниже входа. Всё по правилам.", dir === -1 ? "SELL: stop kirishdan yuqori. Hammasi qoidaga mos." : "BUY: stop kirishdan past. Hammasi qoidaga mos.");
+}
+["l-dep", "l-risk", "l-ins", "l-en", "l-sl", "l-tp"].forEach(function(id){ document.getElementById(id).addEventListener("input", lot); });
+
+/* тест */
+var Q = [
+  { q: ["Что значит метка «TSL buy снят ×2»?", "«TSL buy olindi ×2» belgisi nimani anglatadi?"], o: [["Прогноз на покупку не сработал", "Xarid prognozi ishlamadi"], ["Одна свеча сняла стопы покупателей с двух уровней", "Bitta sham ikki darajadagi xaridorlar stoplarini oldi"], ["Нужно сразу продавать", "Darhol sotish kerak"]], a: 1, e: ["Это факт: ликвидность снизу забрана. Дальше ждём buzdi вверх.", "Bu fakt: pastdagi likvidlik olindi. Keyin yuqoriga buzdi ni kutamiz."] },
+  { q: ["Что такое negation?", "Negation nima?"], o: [["Свеча закрылась за лоу/хаем последней свечи противоположного цвета", "Sham qarama-qarshi rangdagi oxirgi shamning low/high'i ortida yopildi"], ["Любая красная свеча", "Har qanday qizil sham"], ["Пробой уровня LAOL", "LAOL darajasining yorib o'tilishi"]], a: 0, e: ["Каждая свеча-откат ломается один раз, серия даёт 2X, 3X.", "Har bir qaytish shami bir marta sindiriladi, seriya 2X, 3X beradi."] },
+  { q: ["Какой минимум negation нужен для входа?", "Kirish uchun eng kamida qancha negation kerak?"], o: [["1X", "1X"], ["2X", "2X"], ["4X", "4X"]], a: 1, e: ["buzdi появляется при серии 2X после свинга.", "buzdi swingdan keyin 2X seriyada paydo bo'ladi."] },
+  { q: ["Где ставится лимит на продажу?", "Sotish limiti qayerga qo'yiladi?"], o: [["На вершине", "Cho'qqida"], ["На нижнем краю POI zona", "POI zona pastki chetida"], ["На TSL buy", "TSL buy da"]], a: 1, e: ["Цена возвращается в POI — там банки добирают позицию.", "Narx POI ga qaytadi — banklar u yerda pozitsiyani to'ldiradi."] },
+  { q: ["Стоп 3 пункта, цель в 6 пунктах. Входим?", "Stop 3 punkt, maqsad 6 punktda. Kiramizmi?"], o: [["Да, RR 1:2 хватает", "Ha, RR 1:2 yetadi"], ["Нет, нужно RR от 1:3", "Yo'q, RR 1:3 dan kerak"]], a: 1, e: ["Правило: до TP3 RR не меньше 1:3, иначе POI остаётся бледной «RR < 3».", "Qoida: TP3 gacha RR kamida 1:3, aks holda POI «RR < 3» bilan och qoladi."] },
+  { q: ["Что делаем после TP1?", "TP1 dan keyin nima qilamiz?"], o: [["Закрываем всё", "Hammasini yopamiz"], ["Переносим стоп в безубыток", "Stopni zararsizlikka ko'chiramiz"], ["Добавляем лот", "Lot qo'shamiz"]], a: 1, e: ["Треть позиции взята, остаток без риска.", "Pozitsiyaning uchdan biri olindi, qolgani risksiz."] }
+];
+var answers = {};
+function renderQuiz(){
+  var box = document.getElementById("quizbox"); box.innerHTML = "";
+  Q.forEach(function(q, i){
+    var d = document.createElement("div"); d.className = "q";
+    var p = document.createElement("p"); p.textContent = (i + 1) + ". " + T(q.q[0], q.q[1]); d.appendChild(p);
+    var os = document.createElement("div"); os.className = "opts";
+    q.o.forEach(function(o, j){
+      var b = document.createElement("button"); b.type = "button"; b.className = "opt"; b.textContent = T(o[0], o[1]);
+      if (answers[i] != null){ if (j === q.a) b.classList.add("ok"); else if (j === answers[i]) b.classList.add("no"); }
+      b.addEventListener("click", function(){ answers[i] = j; renderQuiz(); });
+      os.appendChild(b);
+    });
+    d.appendChild(os);
+    if (answers[i] != null){ var f = document.createElement("div"); f.className = "fb"; f.textContent = (answers[i] === q.a ? T("Верно. ", "To'g'ri. ") : T("Неверно. ", "Noto'g'ri. ")) + T(q.e[0], q.e[1]); d.appendChild(f); }
+    box.appendChild(d);
+  });
+  var done = Object.keys(answers).length, ok = Object.keys(answers).filter(function(k){ return answers[k] === Q[k].a; }).length;
+  document.getElementById("q-score").textContent = done ? T("Результат: ", "Natija: ") + ok + " / " + Q.length + (done === Q.length && ok === Q.length ? T(" — отлично, можно на демо.", " — a'lo, demo'ga o'tish mumkin.") : "") : "";
+}
+
+function apply(){
+  root.setAttribute("data-lang", lang);
+  root.setAttribute("lang", lang);
+  document.getElementById("b-ru").setAttribute("aria-pressed", lang === "ru" ? "true" : "false");
+  document.getElementById("b-uz").setAttribute("aria-pressed", lang === "uz" ? "true" : "false");
+  draw(document.getElementById("ch-tsl"), CH.tsl);
+  draw(document.getElementById("ch-neg"), CH.neg);
+  draw(document.getElementById("ch-laol"), CH.laol);
+  renderSteps(); grade(); lot(); renderQuiz();
+}
+document.querySelectorAll(".lang button").forEach(function(b){
+  b.addEventListener("click", function(){ lang = b.getAttribute("data-l"); try { localStorage.setItem("bmi-lang", lang); } catch(e) {} apply(); });
+});
+apply();
+})();
+</script>
